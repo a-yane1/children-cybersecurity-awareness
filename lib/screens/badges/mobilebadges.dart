@@ -27,6 +27,7 @@ class _MobileBadgesState extends State<MobileBadges> {
           (b) => Badges(
             id: b.id,
             name: b.name,
+            image: b.image,
             description: b.description,
             isUnlocked: unlocked.contains(b.id),
           ),
@@ -74,7 +75,7 @@ class _MobileBadgesState extends State<MobileBadges> {
               child: Column(
                 children: [
                   Image.asset(
-                    'assets/images/Fishing.png',
+                    'assets/images/${badge.image}.png',
                     height: 80,
                     color: badge.isUnlocked ? null : AppColors.inactiveColor,
                   ),

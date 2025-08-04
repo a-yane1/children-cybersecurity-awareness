@@ -97,6 +97,7 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
         final currentProgress = box.get(progressKey, defaultValue: 0);
         box.put(progressKey, currentProgress + 1);
       } else {
+        score -= 2;
         currentStreak = 0; // 🧨 FIXED
       }
     });
