@@ -78,45 +78,6 @@ class MobileCategoryScreen extends StatelessWidget {
                       onTap: () => _onTopicSelected(context, topic['label']!),
                       totalQuestions: 50,
                     );
-
-                    // GestureDetector(
-                    //   onTap: ,
-                    //   child: Container(
-                    //     decoration: BoxDecoration(
-                    //       color: AppColors.surface1,
-                    //       borderRadius: BorderRadius.circular(20),
-                    //       border: Border.all(color: AppColors.borderColor),
-                    //       boxShadow: const [
-                    //         BoxShadow(
-                    //           color: Colors.black12,
-                    //           blurRadius: 4,
-                    //           offset: Offset(2, 2),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //     child: Center(
-                    //       child: Column(
-                    //         mainAxisSize: MainAxisSize.min,
-                    //         children: [
-                    //           Text(
-                    //             ,
-                    //             style: const TextStyle(fontSize: 40),
-                    //           ),
-                    //           const SizedBox(height: 8),
-                    //           Text(
-                    //             topic['label']!,
-                    //             textAlign: TextAlign.center,
-                    //             style: TextStyle(
-                    //               fontSize: 16,
-                    //               fontWeight: FontWeight.w600,
-                    //               color: const Color(0xFF333333),
-                    //             ),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ),
-                    // );
                   }).toList(),
                 ),
               ),

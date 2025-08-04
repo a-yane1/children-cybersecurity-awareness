@@ -82,19 +82,24 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
 
     final isCorrect =
         questions[currentQuestionIndex]['options'][selectedIndex]['isCorrect'];
-    if (isCorrect) {
-      score += 2;
-      currentStreak++;
+    setState(() {
+      if (isCorrect) {
+        score += 2;
+        currentStreak++;
 
-      // Save score
-      box.put('score', score);
+        // Save to Hive
+        final box = Hive.box('userBox');
+        box.put('score', score);
 
-      // Update topic progress
-      String progressKey =
-          'progress_${widget.topic.toLowerCase().replaceAll(' ', '_')}';
-      int currentProgress = box.get(progressKey, defaultValue: 0);
-      box.put(progressKey, currentProgress + 1);
-    }
+        // Update topic progress
+        final progressKey =
+            'progress_${widget.topic.toLowerCase().replaceAll(' ', '_')}';
+        final currentProgress = box.get(progressKey, defaultValue: 0);
+        box.put(progressKey, currentProgress + 1);
+      } else {
+        currentStreak = 0; // 🧨 FIXED
+      }
+    });
 
     checkForBadges(
       topic: widget.topic,
@@ -135,8 +140,8 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
           children: [
             Image.asset(
               isCorrect
-                  ? 'assets/images/happy.png'
-                  : 'assets/images/encourage.png',
+                  ? 'assets/images/happy_mascot.png'
+                  : 'assets/images/sad_mascot.png',
               height: 120,
             ),
             const SizedBox(height: 12),
@@ -152,9 +157,9 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pushReplacementNamed(
+              Navigator.pushReplacement(
                 context,
-                MainNavigationScreen.routeName,
+                MaterialPageRoute(builder: (_) => MainNavigationScreen()),
               );
             },
             child: Text(
@@ -173,7 +178,7 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
                   hasSubmitted = false;
                 });
               } else {
-                // TODO: Handle end of quiz (e.g., show results or restart)
+                // Later: Handle end of quiz (e.g., show results or restart)
               }
             },
             child: Text(
@@ -211,6 +216,7 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
                         width: 150,
                         child: LinearProgressIndicator(
                           value: currentQuestionIndex / totalQuestions,
+                          borderRadius: BorderRadius.circular(5),
                           backgroundColor: Colors.grey[300],
                           valueColor: const AlwaysStoppedAnimation<Color>(
                             Color(0xFF4CAF50),
@@ -340,9 +346,7 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 16),
-
               Text(
                 '💡 Need a hint?',
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
