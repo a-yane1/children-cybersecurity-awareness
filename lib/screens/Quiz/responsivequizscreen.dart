@@ -14,7 +14,7 @@ class ResponsiveQuizScreen extends StatelessWidget {
         if (constraints.maxWidth >= 800) {
           return const DesktopQuizScreen();
         } else {
-          return const MobileQuizScreen(userName: '', topic: '');
+          return MobileQuizScreen(categoryId: 0, categoryName: '');
         }
       },
     );

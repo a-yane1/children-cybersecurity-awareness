@@ -3,14 +3,12 @@ import 'package:children_cs_awareness_quiz/screens/Categories/responsivecategory
 import 'package:children_cs_awareness_quiz/screens/Quiz/responsivequizscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive_flutter/adapters.dart';
-
+import 'package:provider/provider.dart';
+import 'provider/quiz_provider.dart';
 import 'screens/Welcome/responsivewelcomescreen.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  await Hive.openBox('userBox'); // Single box for user data
+  // Single box for user data
   runApp(MyApp());
 }
 
@@ -19,21 +17,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'HackAware',
-      theme: ThemeData(
-        textTheme: GoogleFonts.signikaTextTheme(),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (context) => QuizProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'HackAware',
+        theme: ThemeData(
+          textTheme: GoogleFonts.signikaTextTheme(),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        routes: {
+          '/': (context) => ResponsiveWelcomeScreen(),
+          ResponsiveCategoryScreen.routeName: (context) =>
+              ResponsiveCategoryScreen(),
+          ResponsiveQuizScreen.routeName: (context) => ResponsiveQuizScreen(),
+          MobileCategoryScreen.routeName: (context) => MobileCategoryScreen(),
+        },
       ),
-      routes: {
-        '/': (context) => ResponsiveWelcomeScreen(),
-        ResponsiveCategoryScreen.routeName: (context) =>
-            ResponsiveCategoryScreen(),
-        ResponsiveQuizScreen.routeName: (context) => ResponsiveQuizScreen(),
-        MobileCategoryScreen.routeName: (context) => MobileCategoryScreen(),
-      },
     );
   }
 }

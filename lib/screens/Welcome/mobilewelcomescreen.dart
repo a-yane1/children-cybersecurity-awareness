@@ -1,8 +1,8 @@
-import 'package:children_cs_awareness_quiz/screens/Navigation/MobileNavigation.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
-
+import 'package:provider/provider.dart';
+import 'package:children_cs_awareness_quiz/screens/Navigation/MobileNavigation.dart';
 import '../../Widgets/colors.dart';
+import '../../provider/quiz_provider.dart';
 
 class MobileWelcomeScreen extends StatefulWidget {
   const MobileWelcomeScreen({super.key});
@@ -13,18 +13,43 @@ class MobileWelcomeScreen extends StatefulWidget {
 
 class _MobileWelcomeScreenState extends State<MobileWelcomeScreen> {
   final TextEditingController _nameController = TextEditingController();
+  bool _isLoading = false;
 
   void _startQuiz() async {
     final name = _nameController.text.trim();
-    if (name.isNotEmpty) {
-      final box = Hive.box('userBox');
-      await box.put('name', name);
-
-      Navigator.push(
-        // ignore: use_build_context_synchronously
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(builder: (_) => MainNavigationScreen()),
-      );
+      ).showSnackBar(SnackBar(content: Text('Please enter your name')));
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+      await quizProvider.createUser(name);
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => MainNavigationScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to create user: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -62,6 +87,7 @@ class _MobileWelcomeScreenState extends State<MobileWelcomeScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: _nameController,
+              enabled: !_isLoading,
               decoration: InputDecoration(
                 hintText: 'Your name here',
                 hintStyle: TextStyle(fontSize: 18),
@@ -80,31 +106,28 @@ class _MobileWelcomeScreenState extends State<MobileWelcomeScreen> {
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: _startQuiz,
+              onPressed: _isLoading ? null : _startQuiz,
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
                 elevation: 2,
-                foregroundColor: WidgetStateColor.resolveWith((states) {
-                  return states.contains(WidgetState.hovered)
-                      ? AppColors.textColor
-                      : AppColors.secondarytextColor;
-                }),
-                overlayColor: WidgetStateColor.resolveWith((states) {
-                  return states.contains(WidgetState.hovered)
-                      ? AppColors.hovercolor
-                      : Colors.transparent;
-                }),
-
                 backgroundColor: AppColors.primaryColor,
-
-                alignment: Alignment.center,
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              icon: const Text("🚀", style: TextStyle(fontSize: 20)),
+              icon: _isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text("🚀", style: TextStyle(fontSize: 20)),
               label: Text(
-                "Let's Start!",
+                _isLoading ? "Creating your profile..." : "Let's Start!",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,

@@ -1,15 +1,36 @@
 class Badges {
-  final String id;
+  final int id;
   final String name;
-  final String image;
   final String description;
-  final bool isUnlocked;
+  final String icon;
+  final String requirementType;
+  final int requirementValue;
+  final DateTime? earnedAt;
+  final bool isEarned;
 
   Badges({
     required this.id,
     required this.name,
-    required this.image,
     required this.description,
-    this.isUnlocked = false,
+    required this.icon,
+    required this.requirementType,
+    required this.requirementValue,
+    this.earnedAt,
+    this.isEarned = false,
   });
+
+  factory Badges.fromJson(Map<String, dynamic> json) {
+    return Badges(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'] ?? '',
+      icon: json['icon'] ?? '🏆',
+      requirementType: json['requirement_type'],
+      requirementValue: json['requirement_value'],
+      earnedAt: json['earned_at'] != null
+          ? DateTime.parse(json['earned_at'])
+          : null,
+      isEarned: json['earned_at'] != null,
+    );
+  }
 }

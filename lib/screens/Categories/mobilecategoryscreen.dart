@@ -1,109 +1,221 @@
-import 'package:children_cs_awareness_quiz/Widgets/topiccard.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
-
-import '../../Widgets/colors.dart' show AppColors;
+import 'package:provider/provider.dart';
+import 'package:children_cs_awareness_quiz/Widgets/topiccard.dart';
+import '../../Widgets/colors.dart';
+import '../../provider/quiz_provider.dart';
 import '../Quiz/mobilequizscreen.dart';
 
 class MobileCategoryScreen extends StatelessWidget {
-  MobileCategoryScreen({super.key});
+  const MobileCategoryScreen({super.key});
   static const routeName = 'mobile-category';
-
-  final name = Hive.box('userBox').get('name', defaultValue: 'Friend');
-  final progress = Hive.box(
-    'userBox',
-  ).get('progress_passwords', defaultValue: 0);
-
-  void _onTopicSelected(BuildContext context, String topic) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Selected: $topic"),
-        duration: Duration(seconds: 1),
-        dismissDirection: DismissDirection.down,
-      ),
-    );
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MobileQuizScreen(topic: topic, userName: name),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    final topics = [
-      {'icon': '📱', 'label': 'Phone Safety'},
-      {'icon': '🔐', 'label': 'Passwords'},
-      {'icon': '🖱️', 'label': 'Safe Clicking'},
-      {'icon': '👤', 'label': 'Stranger Danger'},
-    ];
-
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Hi $name! 👋",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textColor,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "What do you want to learn about?",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: AppColors.inactiveColor,
-                  fontWeight: FontWeight.w200,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 0.8,
-                  mainAxisSpacing: 16,
-                  children: topics.map((topic) {
-                    return TopicCard(
-                      topicName: topic['label']!,
-                      icon: topic['icon']!,
-                      onTap: () => _onTopicSelected(context, topic['label']!),
-                      totalQuestions: 50,
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  final randomTopic = topics.toList()..shuffle();
-                  _onTopicSelected(context, randomTopic.first['label']!);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  minimumSize: const Size.fromHeight(60),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+          child: Consumer<QuizProvider>(
+            builder: (context, quizProvider, child) {
+              final user = quizProvider.currentUser;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Hi ${user?.name ?? 'Friend'}! 👋",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor,
+                    ),
                   ),
-                ),
-                child: Text(
-                  "🎲 Surprise Me!",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                  const SizedBox(height: 8),
+                  Text(
+                    "What do you want to learn about?",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: AppColors.inactiveColor,
+                      fontWeight: FontWeight.w200,
+                    ),
                   ),
-                ),
-              ),
-            ],
+                  const SizedBox(height: 16),
+
+                  // User stats
+                  if (user != null)
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                '${user.totalPoints}',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
+                              Text('Points', style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Container(
+                            width: 1,
+                            height: 30,
+                            color: Colors.blue.shade200,
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                '${user.currentStreak}',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange.shade700,
+                                ),
+                              ),
+                              Text('Streak', style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Container(
+                            width: 1,
+                            height: 30,
+                            color: Colors.blue.shade200,
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                '${user.bestStreak}',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green.shade700,
+                                ),
+                              ),
+                              Text('Best', style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  Expanded(
+                    child: quizProvider.isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : quizProvider.error != null
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 64,
+                                  color: Colors.red,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Error loading categories',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  quizProvider.error!,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: () =>
+                                      quizProvider.loadCategories(),
+                                  child: Text('Retry'),
+                                ),
+                              ],
+                            ),
+                          )
+                        : GridView.builder(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  childAspectRatio: 0.8,
+                                  mainAxisSpacing: 16,
+                                ),
+                            itemCount: quizProvider.categories.length,
+                            itemBuilder: (context, index) {
+                              final category = quizProvider.categories[index];
+                              return TopicCard(
+                                category: category,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MobileQuizScreen(
+                                        categoryId: category.id,
+                                        categoryName: category.name,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Surprise me button
+                  ElevatedButton(
+                    onPressed: quizProvider.categories.isNotEmpty
+                        ? () {
+                            final randomCategory = (List.from(
+                              quizProvider.categories,
+                            )..shuffle()).first;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MobileQuizScreen(
+                                  categoryId: randomCategory.id,
+                                  categoryName: randomCategory.name,
+                                ),
+                              ),
+                            );
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      minimumSize: const Size.fromHeight(60),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      "🎲 Surprise Me!",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
