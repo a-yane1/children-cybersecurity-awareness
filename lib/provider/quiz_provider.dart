@@ -58,6 +58,8 @@ class QuizProvider with ChangeNotifier {
   Future<void> startQuiz(int categoryId) async {
     if (_currentUser == null) return;
 
+    // Clear any previous question state
+    _currentQuestion = null;
     _selectedCategoryId = categoryId;
     _setLoading(true);
 
@@ -188,6 +190,11 @@ class QuizProvider with ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  Future<void> refreshCategories() async {
+    if (_currentUser == null) return;
+    await loadCategories(); // This will trigger notifyListeners()
   }
 
   // Helper methods
