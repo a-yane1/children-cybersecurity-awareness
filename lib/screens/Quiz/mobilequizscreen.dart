@@ -1,9 +1,8 @@
+import 'package:children_cs_awareness_quiz/models/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:children_cs_awareness_quiz/screens/Navigation/MobileNavigation.dart';
-import 'package:children_cs_awareness_quiz/screens/badges/mobilebadges.dart';
 import '../../Widgets/colors.dart';
-import '../../Widgets/feedback_dialog.dart';
 import '../../Widgets/question_display.dart';
 import '../../Widgets/quiz_header.dart';
 import '../../provider/quiz_provider.dart';
@@ -77,14 +76,8 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
       );
 
       if (result != null && mounted) {
-        if (result.newBadges.isNotEmpty) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => MobileBadges()),
-          );
-        } else {
-          _showFeedback(result.isCorrect, result.explanation);
-        }
+        // Always show feedback, even with new badges
+        _showFeedback(result.isCorrect, result.explanation, result.newBadges);
       }
     } catch (e) {
       if (mounted) {
@@ -101,43 +94,154 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
     }
   }
 
-  void _showFeedback(bool isCorrect, String explanation) {
+  void _showFeedback(
+    bool isCorrect,
+    String explanation, [
+    List<Badges>? newBadges,
+  ]) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => FeedbackDialog(
-        isCorrect: isCorrect,
-        explanation: explanation,
-        onContinue: _continueToNextQuestion,
-        onExit: () async {
-          // Clear current question and refresh categories
-          final provider = Provider.of<QuizProvider>(context, listen: false);
-          provider.clearCurrentQuestion();
-          await provider.refreshCategories();
+      builder: (_) => AlertDialog(
+        backgroundColor: isCorrect
+            ? const Color.fromARGB(255, 230, 247, 230)
+            : const Color.fromARGB(255, 245, 227, 225),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          isCorrect ? '🎉 Great job!' : '😊 Good try!',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isCorrect ? AppColors.successColor : AppColors.errorColor,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              isCorrect
+                  ? 'assets/images/happy_mascot.png'
+                  : 'assets/images/sad_mascot.png',
+              height: 120,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  isCorrect ? Icons.celebration : Icons.lightbulb,
+                  size: 120,
+                  color: isCorrect ? Colors.green : Colors.orange,
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            Text(
+              explanation,
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
 
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => MainNavigationScreen()),
-            );
-          }
-        },
+            // Show badge celebration if new badges were earned
+            if (newBadges != null && newBadges.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.yellow.shade300),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '🏆 New Badge${newBadges.length > 1 ? 's' : ''} Earned!',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...newBadges
+                        .map(
+                          (badge) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  badge.icon,
+                                  style: TextStyle(fontSize: 24),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  badge.name,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.orange.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => MainNavigationScreen()),
+              );
+            },
+            child: Text(
+              "Exit",
+              style: TextStyle(color: AppColors.inactiveColor, fontSize: 18),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              // Get next question
+              final provider = Provider.of<QuizProvider>(
+                context,
+                listen: false,
+              );
+              await provider.getNextQuestion();
+
+              if (provider.currentQuestion != null) {
+                _startQuestion();
+              } else {
+                // No more questions - show completion
+                _showCompletion();
+              }
+            },
+            child: Text(
+              isCorrect ? '➡️ Next Question' : '➡️ Got it! Next',
+              style: TextStyle(fontSize: 18, color: AppColors.primaryColor),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  void _continueToNextQuestion() async {
-    Navigator.pop(context); // Close dialog
+  // void _continueToNextQuestion() async {
+  //   Navigator.pop(context); // Close dialog
 
-    final provider = Provider.of<QuizProvider>(context, listen: false);
-    await provider.getNextQuestion();
+  //   final provider = Provider.of<QuizProvider>(context, listen: false);
+  //   await provider.getNextQuestion();
 
-    if (provider.currentQuestion != null) {
-      _startQuestion();
-    } else {
-      _showCompletion();
-    }
-  }
+  //   if (provider.currentQuestion != null) {
+  //     _startQuestion();
+  //   } else {
+  //     _showCompletion();
+  //   }
+  // }
 
   void _showCompletion() {
     showDialog(

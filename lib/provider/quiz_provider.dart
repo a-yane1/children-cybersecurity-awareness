@@ -1,5 +1,6 @@
+import 'package:children_cs_awareness_quiz/Services/category_service.dart';
 import 'package:children_cs_awareness_quiz/services/user_service.dart'
-    as Services;
+    as services;
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:children_cs_awareness_quiz/models/questions.dart';
 import 'package:children_cs_awareness_quiz/models/user.dart';
@@ -27,7 +28,7 @@ class QuizProvider with ChangeNotifier {
   Future<void> createUser(String name) async {
     _setLoading(true);
     try {
-      _currentUser = await Services.UserService.createOrGetUser(name);
+      _currentUser = await services.UserService.createOrGetUser(name);
       await loadCategories();
       _clearError();
     } catch (e) {
@@ -43,7 +44,7 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      _categories = (await Services.UserService.getCategories(
+      _categories = (await services.UserService.getCategories(
         _currentUser!.id,
       )).cast<Category>();
       _clearError();
@@ -64,7 +65,7 @@ class QuizProvider with ChangeNotifier {
     _setLoading(true);
 
     try {
-      _currentQuestion = await Services.UserService.getQuestion(
+      _currentQuestion = await services.UserService.getQuestion(
         _currentUser!.id,
         categoryId,
       );
@@ -98,7 +99,7 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      final serviceResult = await Services.UserService.submitAnswer(
+      final serviceResult = await services.UserService.submitAnswer(
         userId: _currentUser!.id,
         questionId: _currentQuestion!.id,
         selectedAnswerId: selectedAnswerId,
@@ -149,7 +150,7 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      _currentQuestion = await Services.UserService.getQuestion(
+      _currentQuestion = await services.UserService.getQuestion(
         _currentUser!.id,
         _selectedCategoryId!,
       );
@@ -167,7 +168,7 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      final serviceProgress = await Services.UserService.getProgress(
+      final serviceProgress = await services.UserService.getProgress(
         _currentUser!.id,
       );
 
@@ -197,6 +198,25 @@ class QuizProvider with ChangeNotifier {
     await loadCategories(); // This will trigger notifyListeners()
   }
 
+  // Reset progress for a specific category
+  Future<void> resetCategoryProgress(int categoryId) async {
+    if (_currentUser == null) return;
+
+    _setLoading(true);
+    try {
+      // Call API to reset progress (you'll need to implement this endpoint)
+      await CategoryService.resetCategoryProgress(_currentUser!.id, categoryId);
+
+      // Reload categories to reflect changes
+      await loadCategories();
+      _clearError();
+    } catch (e) {
+      _setError('Failed to reset progress: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Helper methods
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -216,6 +236,16 @@ class QuizProvider with ChangeNotifier {
   void clearCurrentQuestion() {
     _currentQuestion = null;
     _selectedCategoryId = null;
+    notifyListeners();
+  }
+
+  // Clear user data (for logout)
+  void clearUser() {
+    _currentUser = null;
+    _categories = [];
+    _currentQuestion = null;
+    _selectedCategoryId = null;
+    _clearError();
     notifyListeners();
   }
 }

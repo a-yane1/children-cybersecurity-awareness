@@ -50,36 +50,16 @@ class _MobileBadgesState extends State<MobileBadges> {
 
   @override
   Widget build(BuildContext context) {
-    // Check if this was opened from quiz (has previous route)
-    final canGoBack = ModalRoute.of(context)?.canPop ?? false;
-
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'My Badges',
           style: GoogleFonts.sofiaSans(fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.appbarColor,
+
         // Show different actions based on context
-        actions: canGoBack
-            ? [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(
-                      context,
-                      true,
-                    ); // Return true to indicate continue
-                  },
-                  child: Text(
-                    'Continue Quiz',
-                    style: TextStyle(
-                      color: AppColors.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ]
-            : null,
       ),
       backgroundColor: AppColors.surfaceColor,
       body: isLoading
@@ -108,12 +88,15 @@ class _MobileBadgesState extends State<MobileBadges> {
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.yellow.shade50, Colors.orange.shade50],
+                        colors: [
+                          AppColors.primaryColor,
+                          AppColors.secondaryColor,
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.yellow.shade300),
+                      border: Border.all(color: AppColors.borderColor),
                     ),
                     child: Row(
                       children: [
@@ -128,14 +111,15 @@ class _MobileBadgesState extends State<MobileBadges> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.orange.shade700,
+                                  color: AppColors.surfaceColor,
                                 ),
                               ),
                               Text(
                                 'You\'ve earned ${earnedBadges.length} badge${earnedBadges.length == 1 ? '' : 's'}!',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.orange.shade600,
+                                  color: AppColors.surface1,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],

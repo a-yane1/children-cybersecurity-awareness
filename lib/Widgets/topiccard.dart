@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/category.dart';
+import '../provider/quiz_provider.dart';
 import 'colors.dart';
 
 class TopicCard extends StatelessWidget {
@@ -8,6 +10,64 @@ class TopicCard extends StatelessWidget {
 
   const TopicCard({Key? key, required this.category, required this.onTap})
     : super(key: key);
+
+  void _showResetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Reset Progress',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to reset your progress for "${category.name}"? This will remove all your answers and points for this category.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.inactiveColor),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _resetCategoryProgress(context);
+              },
+              child: Text('Reset', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _resetCategoryProgress(BuildContext context) async {
+    final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+    try {
+      await quizProvider.resetCategoryProgress(category.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Progress reset for ${category.name}'),
+          backgroundColor: AppColors.successColor,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to reset progress: $e'),
+          backgroundColor: AppColors.errorColor,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,24 +88,50 @@ class TopicCard extends StatelessWidget {
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Category icon
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: category.isCompleted
-                    ? Colors.green.withOpacity(0.1)
-                    : AppColors.primaryColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  category.isCompleted ? '✅' : category.icon,
-                  style: TextStyle(fontSize: 28),
+            // Header with icon and menu
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(category.icon, style: TextStyle(fontSize: 24)),
+                  ),
                 ),
-              ),
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: AppColors.inactiveColor,
+                    size: 20,
+                  ),
+                  onSelected: (String value) {
+                    if (value == 'reset') {
+                      _showResetDialog(context);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem<String>(
+                      value: 'reset',
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh, color: Colors.red, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Reset Progress',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
 
             SizedBox(height: 12),
@@ -89,9 +175,7 @@ class TopicCard extends StatelessWidget {
 
             // Progress text
             Text(
-              category.totalQuestions > 0
-                  ? '${category.questionsAnswered}/${category.totalQuestions} completed'
-                  : 'No questions available',
+              '${category.questionsAnswered}/${category.totalQuestions} completed',
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
 
@@ -109,23 +193,6 @@ class TopicCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     color: Colors.green.shade700,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              )
-            else if (category.questionsAnswered > 0)
-              Container(
-                margin: EdgeInsets.only(top: 8),
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'In Progress...',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.blue.shade700,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

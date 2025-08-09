@@ -5,14 +5,98 @@ import '../../Widgets/colors.dart';
 import '../../provider/quiz_provider.dart';
 import '../Quiz/mobilequizscreen.dart';
 
-class MobileCategoryScreen extends StatelessWidget {
+class MobileCategoryScreen extends StatefulWidget {
   const MobileCategoryScreen({super.key});
   static const routeName = 'mobile-category';
+
+  @override
+  State<MobileCategoryScreen> createState() => _MobileCategoryScreenState();
+}
+
+class _MobileCategoryScreenState extends State<MobileCategoryScreen> {
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.inactiveColor),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _logout(context);
+              },
+              child: Text(
+                'Logout',
+                style: TextStyle(color: AppColors.primaryColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _logout(BuildContext context) {
+    final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+    quizProvider.clearUser(); // We'll need to add this method to QuizProvider
+
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
+      appBar: AppBar(
+        backgroundColor: AppColors.surfaceColor,
+        title: Text(
+          "Categories",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textColor,
+          ),
+        ),
+        automaticallyImplyLeading: false,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: AppColors.textColor),
+            onSelected: (String value) {
+              if (value == 'logout') {
+                _showLogoutDialog(context);
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: AppColors.textColor),
+                    SizedBox(width: 8),
+                    Text('Logout'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
