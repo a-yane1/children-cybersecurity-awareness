@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Update this with your Railway URL
-  static const String baseUrl = 'https://backboard.railway.com/graphql/v2';
+  static const String baseUrl =
+      'https://children-cybersecurity-backend-production.up.railway.app/api';
 
   static Map<String, String> get _headers => {
     'Content-Type': 'application/json',

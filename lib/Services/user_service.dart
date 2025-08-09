@@ -1,11 +1,15 @@
-import '../models/answer_result.dart';
-import '../models/progress_dashboard.dart';
-import '../models/questions.dart';
-import '../models/user.dart';
-import '../models/category.dart';
+// lib/services/user_service.dart
+
+import 'package:children_cs_awareness_quiz/models/user.dart';
+import 'package:children_cs_awareness_quiz/models/category.dart';
+import 'package:children_cs_awareness_quiz/models/questions.dart';
+import 'package:children_cs_awareness_quiz/models/answer_result.dart';
+import 'package:children_cs_awareness_quiz/models/progress_dashboard.dart';
 import 'api_services.dart';
 
 class UserService {
+  // Don't define AnswerResult here - only use it
+
   static Future<User> createOrGetUser(String name) async {
     final response = await ApiService.post('/users', {'name': name});
     return User.fromJson(response['user']);

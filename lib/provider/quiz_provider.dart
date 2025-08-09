@@ -1,8 +1,12 @@
-import 'package:children_cs_awareness_quiz/services/user_service.dart';
+import 'package:children_cs_awareness_quiz/services/user_service.dart'
+    as Services;
 import 'package:flutter/foundation.dart' hide Category;
-import '../models/questions.dart';
-import '../models/user.dart';
-import '../models/category.dart';
+import 'package:children_cs_awareness_quiz/models/questions.dart';
+import 'package:children_cs_awareness_quiz/models/user.dart';
+import 'package:children_cs_awareness_quiz/models/category.dart';
+import 'package:children_cs_awareness_quiz/models/badges.dart';
+import 'package:children_cs_awareness_quiz/models/answer_result.dart';
+import 'package:children_cs_awareness_quiz/models/progress_dashboard.dart';
 
 class QuizProvider with ChangeNotifier {
   User? _currentUser;
@@ -24,7 +28,7 @@ class QuizProvider with ChangeNotifier {
   Future<void> createUser(String name) async {
     _setLoading(true);
     try {
-      _currentUser = await UserService.createOrGetUser(name);
+      _currentUser = await Services.UserService.createOrGetUser(name);
       await loadCategories();
       _clearError();
     } catch (e) {
@@ -40,7 +44,7 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      _categories = (await UserService.getCategories(
+      _categories = (await Services.UserService.getCategories(
         _currentUser!.id,
       )).cast<Category>();
       _clearError();
@@ -59,7 +63,7 @@ class QuizProvider with ChangeNotifier {
     _setLoading(true);
 
     try {
-      _currentQuestion = await UserService.getQuestion(
+      _currentQuestion = await Services.UserService.getQuestion(
         _currentUser!.id,
         categoryId,
       );
@@ -85,12 +89,21 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      final result = await UserService.submitAnswer(
+      final serviceResult = await Services.UserService.submitAnswer(
         userId: _currentUser!.id,
         questionId: _currentQuestion!.id,
         selectedAnswerId: selectedAnswerId,
         timeTaken: timeTaken,
         hintUsed: hintUsed,
+      );
+
+      // Create a new AnswerResult from the service result to ensure type compatibility
+      final result = AnswerResult(
+        isCorrect: serviceResult.isCorrect,
+        pointsEarned: serviceResult.pointsEarned,
+        explanation: serviceResult.explanation,
+        correctAnswer: serviceResult.correctAnswer,
+        newBadges: serviceResult.newBadges,
       );
 
       // Update user points and streak
@@ -120,7 +133,7 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      _currentQuestion = await UserService.getQuestion(
+      _currentQuestion = await Services.UserService.getQuestion(
         _currentUser!.id,
         _selectedCategoryId!,
       );
@@ -138,7 +151,18 @@ class QuizProvider with ChangeNotifier {
 
     _setLoading(true);
     try {
-      final progress = await UserService.getProgress(_currentUser!.id);
+      final serviceProgress = await Services.UserService.getProgress(
+        _currentUser!.id,
+      );
+
+      // Create a new ProgressDashboard from the service result to ensure type compatibility
+      final progress = ProgressDashboard(
+        user: serviceProgress.user,
+        categoryProgress: serviceProgress.categoryProgress,
+        earnedBadges: serviceProgress.earnedBadges,
+        allBadges: serviceProgress.allBadges,
+      );
+
       _currentUser = progress.user; // Update user with latest data
       _categories = progress.categoryProgress
           .cast<Category>(); // Update categories
