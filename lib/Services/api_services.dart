@@ -41,20 +41,17 @@ class ApiService {
     Map<String, dynamic> data,
   ) async {
     try {
-      final url = endpoint.startsWith('/')
-          ? '$baseUrl$endpoint'
-          : '$baseUrl/$endpoint';
-      print('🌐 POST request to: $url');
-      print('📤 Request data: $data');
+      print('Making POST request to: $baseUrl$endpoint');
+      print('Data: $data');
 
       final response = await http.post(
-        Uri.parse(url),
+        Uri.parse('$baseUrl$endpoint'),
         headers: _headers,
         body: json.encode(data),
       );
 
-      print('📡 Response status: ${response.statusCode}');
-      print('📡 Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body);
@@ -64,7 +61,7 @@ class ApiService {
         );
       }
     } catch (e) {
-      print('❌ API POST error: $e');
+      print('API Error: $e');
       throw ApiException('Network error: $e');
     }
   }

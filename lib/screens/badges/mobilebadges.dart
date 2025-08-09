@@ -213,20 +213,18 @@ class _MobileBadgesState extends State<MobileBadges> {
                       return Container(
                         decoration: BoxDecoration(
                           color: isEarned
-                              ? Colors.yellow.shade50
+                              ? Colors.green.shade50
                               : AppColors.surface1,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: isEarned
-                                ? Colors.yellow.shade300
+                                ? Colors.green.shade200
                                 : AppColors.borderColor,
                             width: isEarned ? 2 : 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: isEarned
-                                  ? Colors.yellow.withOpacity(0.2)
-                                  : Colors.black12,
+                              color: Colors.black12,
                               blurRadius: isEarned ? 8 : 4,
                               offset: Offset(0, isEarned ? 4 : 2),
                             ),
@@ -241,7 +239,7 @@ class _MobileBadgesState extends State<MobileBadges> {
                               height: 60,
                               decoration: BoxDecoration(
                                 color: isEarned
-                                    ? Colors.yellow.shade100
+                                    ? Colors.green.shade100
                                     : Colors.grey.shade100,
                                 shape: BoxShape.circle,
                               ),

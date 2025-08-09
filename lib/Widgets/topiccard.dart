@@ -71,18 +71,28 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if category is completed and should be deactivated
+    final bool isCompleted = category.isCompleted;
+    final bool isClickable = !isCompleted;
+
     return GestureDetector(
-      onTap: onTap,
+      onTap: isClickable ? onTap : null, // Make unclickable if completed
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isCompleted
+              ? Colors.grey.shade100
+              : Colors.white, // Deactivated color
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.borderColor),
+          border: Border.all(
+            color: isCompleted ? Colors.grey.shade300 : AppColors.borderColor,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: Offset(0, 4),
+              color: isCompleted
+                  ? Colors.grey.withOpacity(0.1)
+                  : Colors.black.withOpacity(0.1),
+              blurRadius: isCompleted ? 4 : 8,
+              offset: Offset(0, isCompleted ? 2 : 4),
             ),
           ],
         ),
@@ -94,47 +104,59 @@ class TopicCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.1),
+                    color: isCompleted
+                        ? Colors.grey.shade200
+                        : AppColors.primaryColor.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Text(category.icon, style: TextStyle(fontSize: 24)),
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: AppColors.inactiveColor,
-                    size: 20,
-                  ),
-                  onSelected: (String value) {
-                    if (value == 'reset') {
-                      _showResetDialog(context);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => [
-                    PopupMenuItem<String>(
-                      value: 'reset',
-                      child: Row(
-                        children: [
-                          Icon(Icons.refresh, color: Colors.red, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Reset Progress',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
+                    child: Text(
+                      category.icon,
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: isCompleted ? Colors.grey.shade500 : null,
                       ),
                     ),
-                  ],
+                  ),
                 ),
+                // Only show menu if there's progress to reset
+                // if (category.questionsAnswered > 0)
+                //   PopupMenuButton<String>(
+                //     icon: Icon(
+                //       Icons.more_vert,
+                //       color: isCompleted
+                //           ? Colors.grey.shade400
+                //           : AppColors.inactiveColor,
+                //       size: 20,
+                //     ),
+                //     onSelected: (String value) {
+                //       if (value == 'reset') {
+                //         _showResetDialog(context);
+                //       }
+                //     },
+                //     itemBuilder: (BuildContext context) => [
+                //       PopupMenuItem<String>(
+                //         value: 'reset',
+                //         child: Row(
+                //           children: [
+                //             Icon(Icons.refresh, color: Colors.red, size: 20),
+                //             SizedBox(width: 8),
+                //             Text(
+                //               'Reset Progress',
+                //               style: TextStyle(color: Colors.red),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ],
+                //   ),
               ],
             ),
 
-            SizedBox(height: 12),
+            Spacer(),
 
             // Category name
             Text(
@@ -142,7 +164,7 @@ class TopicCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
+                color: isCompleted ? Colors.grey.shade500 : AppColors.textColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -176,27 +198,35 @@ class TopicCard extends StatelessWidget {
             // Progress text
             Text(
               '${category.questionsAnswered}/${category.totalQuestions} completed',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 12,
+                color: isCompleted
+                    ? Colors.grey.shade400
+                    : Colors.grey.shade600,
+              ),
             ),
 
-            // Completion badge
-            if (category.isCompleted)
-              Container(
-                margin: EdgeInsets.only(top: 8),
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'Complete! ✓',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.green.shade700,
-                    fontWeight: FontWeight.w600,
-                  ),
+            // Completion badge or clickable indicator
+            Container(
+              margin: EdgeInsets.only(top: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: isCompleted
+                    ? Colors.green.shade100
+                    : AppColors.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                isCompleted ? 'Complete! ✓' : 'Click to start!',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: isCompleted
+                      ? Colors.green.shade700
+                      : AppColors.primaryColor,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+            ),
           ],
         ),
       ),
