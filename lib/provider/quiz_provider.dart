@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart' hide Category;
 import 'package:children_cs_awareness_quiz/models/questions.dart';
 import 'package:children_cs_awareness_quiz/models/user.dart';
 import 'package:children_cs_awareness_quiz/models/category.dart';
-import 'package:children_cs_awareness_quiz/models/badges.dart';
 import 'package:children_cs_awareness_quiz/models/answer_result.dart';
 import 'package:children_cs_awareness_quiz/models/progress_dashboard.dart';
 

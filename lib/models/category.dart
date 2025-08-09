@@ -31,8 +31,17 @@ class Category {
       questionsAnswered: json['questions_answered'] ?? 0,
       correctAnswers: json['correct_answers'] ?? 0,
       pointsEarned: json['points_earned'] ?? 0,
-      isCompleted: json['is_completed'] == 1 || json['is_completed'] == true,
+      // Fix the boolean conversion issue
+      isCompleted: _convertToBool(json['is_completed']),
     );
+  }
+
+  // Helper method to handle int/bool conversion
+  static bool _convertToBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is int) return value == 1;
+    if (value is String) return value.toLowerCase() == 'true' || value == '1';
+    return false;
   }
 
   double get progressPercentage {

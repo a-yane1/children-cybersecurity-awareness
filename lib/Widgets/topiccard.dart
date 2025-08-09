@@ -35,11 +35,16 @@ class TopicCard extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(0.1),
+                color: category.isCompleted
+                    ? Colors.green.withOpacity(0.1)
+                    : AppColors.primaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Text(category.icon, style: TextStyle(fontSize: 28)),
+                child: Text(
+                  category.isCompleted ? '✅' : category.icon,
+                  style: TextStyle(fontSize: 28),
+                ),
               ),
             ),
 
@@ -84,7 +89,9 @@ class TopicCard extends StatelessWidget {
 
             // Progress text
             Text(
-              '${category.questionsAnswered}/${category.totalQuestions} completed',
+              category.totalQuestions > 0
+                  ? '${category.questionsAnswered}/${category.totalQuestions} completed'
+                  : 'No questions available',
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
 
@@ -102,6 +109,23 @@ class TopicCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     color: Colors.green.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            else if (category.questionsAnswered > 0)
+              Container(
+                margin: EdgeInsets.only(top: 8),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'In Progress...',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.blue.shade700,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
