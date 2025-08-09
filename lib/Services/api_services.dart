@@ -13,17 +13,25 @@ class ApiService {
 
   static Future<Map<String, dynamic>> get(String endpoint) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: _headers,
-      );
+      final url = endpoint.startsWith('/')
+          ? '$baseUrl$endpoint'
+          : '$baseUrl/$endpoint';
+      print('🌐 GET request to: $url');
+
+      final response = await http.get(Uri.parse(url), headers: _headers);
+
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        throw ApiException('Failed to load data: ${response.statusCode}');
+        throw ApiException(
+          'Failed to load data: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
+      print('❌ API GET error: $e');
       throw ApiException('Network error: $e');
     }
   }
@@ -33,18 +41,30 @@ class ApiService {
     Map<String, dynamic> data,
   ) async {
     try {
+      final url = endpoint.startsWith('/')
+          ? '$baseUrl$endpoint'
+          : '$baseUrl/$endpoint';
+      print('🌐 POST request to: $url');
+      print('📤 Request data: $data');
+
       final response = await http.post(
-        Uri.parse('$baseUrl$endpoint'),
+        Uri.parse(url),
         headers: _headers,
         body: json.encode(data),
       );
 
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body);
       } else {
-        throw ApiException('Request failed: ${response.statusCode}');
+        throw ApiException(
+          'Request failed: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
+      print('❌ API POST error: $e');
       throw ApiException('Network error: $e');
     }
   }

@@ -67,23 +67,45 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
       final question = provider.currentQuestion!;
       final selectedOption = question.options[selectedIndex];
 
+      print('🔄 Submitting answer...');
+      print('Question ID: ${question.id}');
+      print('Selected Option ID: ${selectedOption.id}');
+      print('User ID: ${provider.currentUser?.id}');
+
       final result = await provider.submitAnswer(
         selectedOption.id,
         _timeElapsed,
       );
 
+      print('📊 Submit result: $result');
+      print('Is correct: ${result?.isCorrect}');
+      print('New badges count: ${result?.newBadges.length ?? 0}');
+
       if (result != null && mounted) {
         // Check for new badges
         if (result.newBadges.isNotEmpty) {
+          print('🏆 Navigating to badges screen');
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => MobileBadges()),
           );
         } else {
+          print('💬 Showing feedback dialog');
           _showFeedback(result.isCorrect, result.explanation);
+        }
+      } else {
+        print('❌ Result is null!');
+        // Show error message if result is null
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to submit answer. Please try again.'),
+            ),
+          );
         }
       }
     } catch (e) {
+      print('❌ Error submitting answer: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,

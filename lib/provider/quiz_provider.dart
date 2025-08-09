@@ -85,7 +85,15 @@ class QuizProvider with ChangeNotifier {
     int timeTaken, {
     bool hintUsed = false,
   }) async {
-    if (_currentUser == null || _currentQuestion == null) return null;
+    if (_currentUser == null || _currentQuestion == null) {
+      print('❌ Submit failed: User or question is null');
+      return null;
+    }
+
+    print('🔄 QuizProvider.submitAnswer called');
+    print('User ID: ${_currentUser!.id}');
+    print('Question ID: ${_currentQuestion!.id}');
+    print('Selected Answer ID: $selectedAnswerId');
 
     _setLoading(true);
     try {
@@ -97,6 +105,8 @@ class QuizProvider with ChangeNotifier {
         hintUsed: hintUsed,
       );
 
+      print('✅ Service result received: ${serviceResult.toString()}');
+
       // Create a new AnswerResult from the service result to ensure type compatibility
       final result = AnswerResult(
         isCorrect: serviceResult.isCorrect,
@@ -104,6 +114,10 @@ class QuizProvider with ChangeNotifier {
         explanation: serviceResult.explanation,
         correctAnswer: serviceResult.correctAnswer,
         newBadges: serviceResult.newBadges,
+      );
+
+      print(
+        '✅ AnswerResult created: isCorrect=${result.isCorrect}, badges=${result.newBadges.length}',
       );
 
       // Update user points and streak
@@ -120,6 +134,7 @@ class QuizProvider with ChangeNotifier {
       _clearError();
       return result;
     } catch (e) {
+      print('❌ QuizProvider submit error: $e');
       _setError('Failed to submit answer: $e');
       return null;
     } finally {
