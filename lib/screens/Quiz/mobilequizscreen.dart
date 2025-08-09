@@ -82,20 +82,10 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
       print('New badges count: ${result?.newBadges.length ?? 0}');
 
       if (result != null && mounted) {
-        // Check for new badges
-        if (result.newBadges.isNotEmpty) {
-          print('🏆 Navigating to badges screen');
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => MobileBadges()),
-          );
-        } else {
-          print('💬 Showing feedback dialog');
-          _showFeedback(result.isCorrect, result.explanation);
-        }
+        // ALWAYS show feedback dialog first, regardless of badges
+        _showFeedback(result.isCorrect, result.explanation, result.newBadges);
       } else {
         print('❌ Result is null!');
-        // Show error message if result is null
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -120,7 +110,11 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
     }
   }
 
-  void _showFeedback(bool isCorrect, String explanation) {
+  void _showFeedback(
+    bool isCorrect,
+    String explanation,
+    List<dynamic> newBadges,
+  ) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -133,6 +127,44 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Show badge notification if there are new badges
+            if (newBadges.isNotEmpty) ...[
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.yellow.shade300),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '🏆 New Badge Earned!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade700,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    ...newBadges
+                        .map(
+                          (badge) => Text(
+                            '${badge['icon'] ?? '🏆'} ${badge['name'] ?? 'Achievement'}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.orange.shade600,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
+            ],
+
+            // Mascot image
             Image.asset(
               isCorrect
                   ? 'assets/images/happy_mascot.png'
@@ -147,6 +179,8 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
               },
             ),
             const SizedBox(height: 12),
+
+            // Explanation
             Text(
               explanation,
               style: TextStyle(fontSize: 16),
@@ -169,30 +203,45 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(context); // Close feedback dialog
 
-              // Get next question
-              final provider = Provider.of<QuizProvider>(
-                context,
-                listen: false,
-              );
-              await provider.getNextQuestion();
+              // If there are new badges, show badges screen
+              if (newBadges.isNotEmpty) {
+                final shouldContinue = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => MobileBadges()),
+                );
 
-              if (provider.currentQuestion != null) {
-                _startQuestion();
+                // If user didn't explicitly exit from badges screen, continue with next question
+                if (shouldContinue != false) {
+                  _continueToNextQuestion();
+                }
               } else {
-                // No more questions - show completion
-                _showCompletion();
+                // No badges, go directly to next question
+                _continueToNextQuestion();
               }
             },
             child: Text(
-              isCorrect ? '➡️ Next Question' : '➡️ Got it! Next',
+              isCorrect ? '➡️ Continue' : '➡️ Got it! Continue',
               style: TextStyle(fontSize: 18, color: AppColors.primaryColor),
             ),
           ),
         ],
       ),
     );
+  }
+
+  // Helper method to handle getting next question
+  void _continueToNextQuestion() async {
+    final provider = Provider.of<QuizProvider>(context, listen: false);
+    await provider.getNextQuestion();
+
+    if (provider.currentQuestion != null) {
+      _startQuestion();
+    } else {
+      // No more questions - show completion
+      _showCompletion();
+    }
   }
 
   void _showCompletion() {

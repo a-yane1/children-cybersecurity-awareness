@@ -50,6 +50,9 @@ class _MobileBadgesState extends State<MobileBadges> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if this was opened from quiz (has previous route)
+    final canGoBack = ModalRoute.of(context)?.canPop ?? false;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -57,6 +60,26 @@ class _MobileBadgesState extends State<MobileBadges> {
           style: GoogleFonts.sofiaSans(fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.appbarColor,
+        // Show different actions based on context
+        actions: canGoBack
+            ? [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      true,
+                    ); // Return true to indicate continue
+                  },
+                  child: Text(
+                    'Continue Quiz',
+                    style: TextStyle(
+                      color: AppColors.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ]
+            : null,
       ),
       backgroundColor: AppColors.surfaceColor,
       body: isLoading
@@ -78,6 +101,50 @@ class _MobileBadgesState extends State<MobileBadges> {
             )
           : Column(
               children: [
+                // Celebration banner for new badges
+                if (earnedBadges.isNotEmpty)
+                  Container(
+                    margin: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.yellow.shade50, Colors.orange.shade50],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: Colors.yellow.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Text('🎉', style: TextStyle(fontSize: 40)),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Congratulations!',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange.shade700,
+                                ),
+                              ),
+                              Text(
+                                'You\'ve earned ${earnedBadges.length} badge${earnedBadges.length == 1 ? '' : 's'}!',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.orange.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 // Stats header
                 Container(
                   margin: EdgeInsets.all(16),
@@ -129,7 +196,7 @@ class _MobileBadgesState extends State<MobileBadges> {
                       Column(
                         children: [
                           Text(
-                            '${((earnedBadges.length / allBadges.length) * 100).round()}%',
+                            '${allBadges.isEmpty ? 0 : ((earnedBadges.length / allBadges.length) * 100).round()}%',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
