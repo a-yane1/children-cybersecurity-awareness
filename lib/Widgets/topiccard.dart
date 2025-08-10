@@ -123,36 +123,36 @@ class TopicCard extends StatelessWidget {
                   ),
                 ),
                 // Only show menu if there's progress to reset
-                // if (category.questionsAnswered > 0)
-                //   PopupMenuButton<String>(
-                //     icon: Icon(
-                //       Icons.more_vert,
-                //       color: isCompleted
-                //           ? Colors.grey.shade400
-                //           : AppColors.inactiveColor,
-                //       size: 20,
-                //     ),
-                //     onSelected: (String value) {
-                //       if (value == 'reset') {
-                //         _showResetDialog(context);
-                //       }
-                //     },
-                //     itemBuilder: (BuildContext context) => [
-                //       PopupMenuItem<String>(
-                //         value: 'reset',
-                //         child: Row(
-                //           children: [
-                //             Icon(Icons.refresh, color: Colors.red, size: 20),
-                //             SizedBox(width: 8),
-                //             Text(
-                //               'Reset Progress',
-                //               style: TextStyle(color: Colors.red),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ],
-                //   ),
+                if (category.questionsAnswered > 0)
+                  PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: isCompleted
+                          ? Colors.grey.shade400
+                          : AppColors.inactiveColor,
+                      size: 20,
+                    ),
+                    onSelected: (String value) {
+                      if (value == 'reset') {
+                        _showResetDialog(context);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<String>(
+                        value: 'reset',
+                        child: Row(
+                          children: [
+                            Icon(Icons.refresh, color: Colors.red, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Reset Progress',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
 
