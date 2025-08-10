@@ -24,13 +24,13 @@ class AnswerPicks extends StatelessWidget {
   Widget build(BuildContext context) {
     Color bgColor = Colors.white;
     Color borderColor = Colors.grey.shade300;
-    int borderWidth = 1;
+    // int borderWidth = 1;
 
     if (isSelected && !isDisabled) {
       // Before submission - neutral selection color
       bgColor = Colors.grey.shade100;
       borderColor = Colors.grey.shade400;
-      borderWidth = 2;
+      // borderWidth = 2;
     }
 
     return GestureDetector(

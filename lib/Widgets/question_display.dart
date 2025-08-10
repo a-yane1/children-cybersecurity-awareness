@@ -45,34 +45,34 @@ class QuestionDisplay extends StatelessWidget {
         const SizedBox(height: 20),
 
         // Question image
-        if (question.imageUrl != null)
-          Container(
-            height: 150,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.grey.shade100,
-            ),
-            child: Image.network(
-              question.imageUrl!,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.image, size: 50, color: Colors.grey);
-              },
-            ),
-          )
-        else
-          Container(
-            height: 120,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.blue.shade50,
-            ),
-            child: Icon(Icons.quiz, size: 60, color: Colors.blue.shade300),
-          ),
+        // if (question.imageUrl != null)
+        //   Container(
+        //     height: 150,
+        //     width: double.infinity,
+        //     decoration: BoxDecoration(
+        //       borderRadius: BorderRadius.circular(15),
+        //       color: Colors.grey.shade100,
+        //     ),
+        //     child: Image.network(
+        //       question.imageUrl!,
+        //       fit: BoxFit.contain,
+        //       errorBuilder: (context, error, stackTrace) {
+        //         return Icon(Icons.image, size: 50, color: Colors.grey);
+        //       },
+        //     ),
+        //   )
+        // else
+        //   Container(
+        //     height: 120,
+        //     width: double.infinity,
+        //     decoration: BoxDecoration(
+        //       borderRadius: BorderRadius.circular(15),
+        //       color: Colors.blue.shade50,
+        //     ),
+        //     child: Icon(Icons.quiz, size: 60, color: Colors.blue.shade300),
+        //   ),
 
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
 
         // Question text
         Container(

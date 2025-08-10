@@ -1,10 +1,13 @@
+import 'package:children_cs_awareness_quiz/Widgets/colors.dart';
+import 'package:children_cs_awareness_quiz/models/category.dart';
 import 'package:flutter/material.dart';
 import '../../../models/user.dart';
 
 class QuizHeader extends StatelessWidget {
   final User? user;
+  final Category? category;
 
-  const QuizHeader({super.key, this.user});
+  const QuizHeader({super.key, this.user, this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +23,25 @@ class QuizHeader extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             SizedBox(height: 4),
-            Text(
-              'Adaptive Learning Active',
-              style: TextStyle(fontSize: 12, color: Colors.blue),
+            Container(
+              width: 40,
+              height: 6,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: category!.progressPercentage,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: category!.isCompleted
+                        ? Colors.green
+                        : AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

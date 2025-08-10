@@ -230,19 +230,6 @@ class _MobileQuizScreenState extends State<MobileQuizScreen> {
     );
   }
 
-  // void _continueToNextQuestion() async {
-  //   Navigator.pop(context); // Close dialog
-
-  //   final provider = Provider.of<QuizProvider>(context, listen: false);
-  //   await provider.getNextQuestion();
-
-  //   if (provider.currentQuestion != null) {
-  //     _startQuestion();
-  //   } else {
-  //     _showCompletion();
-  //   }
-  // }
-
   void _showCompletion() {
     showDialog(
       context: context,
