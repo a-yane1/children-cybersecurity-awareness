@@ -265,7 +265,7 @@ class _DesktopQuizScreenState extends State<DesktopQuizScreen> {
               if (mounted) {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => MainNavigationScreen()),
+                  MaterialPageRoute(builder: (_) => DesktopCategoryScreen()),
                 );
               }
             },
@@ -333,7 +333,7 @@ class _DesktopQuizScreenState extends State<DesktopQuizScreen> {
                       onPressed: () => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => MainNavigationScreen(),
+                          builder: (_) => DesktopCategoryScreen(),
                         ),
                       ),
                       child: Text('Back to Categories'),
