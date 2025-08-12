@@ -12,7 +12,7 @@ class ResponsiveQuizScreen extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth >= 800) {
-          return const DesktopQuizScreen();
+          return const DesktopQuizScreen(categoryId: 0, categoryName: '');
         } else {
           return MobileQuizScreen(categoryId: 0, categoryName: '');
         }
